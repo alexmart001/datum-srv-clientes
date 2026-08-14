@@ -1,7 +1,11 @@
 package br.com.datum.data.dto;
 
+import br.com.datum.serializer.StatusDeserializer;
 import br.com.datum.serializer.StatusSerializer;
+import br.com.datum.validation.CPF;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import jakarta.validation.constraints.NotBlank;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -14,11 +18,19 @@ public class ClienteDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
+
+    @NotBlank(message = "Nome é obrigatório")
     private String nome;
+
+    @NotBlank(message = "CPF é obrigatório")
+    @CPF
     private String cpf;
+
+    @NotBlank(message = "Email é obrigatório")
     private String email;
 
     @JsonSerialize(using = StatusSerializer.class)
+    @JsonDeserialize(using = StatusDeserializer.class)
     private boolean status;
 
     private LocalDateTime dtCadastro;

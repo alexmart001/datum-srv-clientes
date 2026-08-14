@@ -2,6 +2,7 @@ package br.com.datum.controllers;
 
 import br.com.datum.data.dto.ClienteDTO;
 import br.com.datum.services.ClienteServices;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class ClientController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public ClienteDTO create(@RequestBody ClienteDTO clienteDTO){
+    public ClienteDTO create(@Valid @RequestBody ClienteDTO clienteDTO){
         return clienteServices.create(clienteDTO);
     }
 
@@ -41,7 +42,7 @@ public class ClientController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public ClienteDTO update(@PathVariable("id") Long id, @RequestBody ClienteDTO clienteDTO){
+    public ClienteDTO update(@PathVariable("id") Long id, @Valid @RequestBody ClienteDTO clienteDTO){
         return clienteServices.update(id, clienteDTO);
     }
 
