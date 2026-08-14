@@ -24,6 +24,13 @@ public class ClientController {
         return clienteServices.findAll();
     }
 
+    @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ClienteDTO> search(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "status", required = false) String status){
+        return clienteServices.search(name, status);
+    }
+
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ClienteDTO findById(@PathVariable("id") Long id){
         return clienteServices.findById(id);

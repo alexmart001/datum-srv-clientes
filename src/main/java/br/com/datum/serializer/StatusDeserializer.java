@@ -14,11 +14,6 @@ public class StatusDeserializer extends JsonDeserializer<Boolean> {
             return null;
         }
 
-        return switch (value.trim().toUpperCase()) {
-            case "ACTIVE" -> true;
-            case "INACTIVE" -> false;
-            default -> throw new IllegalArgumentException(
-                    "Invalid status value: '" + value + "'. Expected 'ACTIVE' or 'INACTIVE'.");
-        };
+        return StatusConverter.toBoolean(value);
     }
 }

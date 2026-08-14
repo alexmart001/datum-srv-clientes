@@ -3,10 +3,14 @@ package br.com.datum.services;
 import br.com.datum.data.dto.ClienteDTO;
 import br.com.datum.exception.ResourceNotFoundException;
 import br.com.datum.mapper.ClienteMapper;
+import br.com.datum.model.Cliente;
 import br.com.datum.repository.ClienteRepository;
+import br.com.datum.serializer.StatusConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,6 +33,26 @@ public class ClienteServices {
     public List<ClienteDTO> findAll(){
         logger.info("Finding all Clientes!");
         return clienteRepository.findAll().stream()
+                .map(clienteMapper::toDTO)
+                .toList();
+    }
+
+    public List<ClienteDTO> search(String name, String status){
+        logger.info("Searching Clientes by name: {} and status: {}", name, status);
+
+        Specification<Cliente> spec = Specification.where(null);
+
+        if (StringUtils.hasText(name)) {
+            String likePattern = "%" + name.toLowerCase() + "%";
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("nome")), likePattern));
+        }
+
+        if (StringUtils.hasText(status)) {
+            boolean statusValue = StatusConverter.toBoolean(status);
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), statusValue));
+        }
+
+        return clienteRepository.findAll(spec).stream()
                 .map(clienteMapper::toDTO)
                 .toList();
     }
