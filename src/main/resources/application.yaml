@@ -1,3 +1,5 @@
+server:
+  port: 8080
 spring:
   application:
     name: datum-srv-clientes
@@ -8,9 +10,6 @@ spring:
     password: C0ntrol3Xyz21
   devtools:
     add-properties: false
-#  jackson:
-#    date-format: yyyy-MM-dd HH:mm:ss
-#    time-zone: America/Sao_Paulo
   jpa:
     hibernate:
       ddl-auto: update
