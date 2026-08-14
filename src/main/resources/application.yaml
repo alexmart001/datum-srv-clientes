@@ -1,3 +1,22 @@
 spring:
   application:
     name: datum-srv-clientes
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/datum_db?useTimezone=true&serverTimezone=UTC
+    username: user_datum
+    password: C0ntrol3Xyz21
+  devtools:
+    add-properties: false
+#  jackson:
+#    date-format: yyyy-MM-dd HH:mm:ss
+#    time-zone: America/Sao_Paulo
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+    show-sql: false
+    open-in-view: false
