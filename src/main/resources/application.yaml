@@ -19,3 +19,12 @@ spring:
           time_zone: UTC
     show-sql: false
     open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Aponta para o Authorization Server (datum-srv-auth). O Spring
+          # resolve automaticamente o JWK Set a partir de
+          # {issuer-uri}/.well-known/oauth-authorization-server para
+          # validar a assinatura dos tokens.
+          issuer-uri: http://localhost:9000
