@@ -1,8 +1,11 @@
 package br.com.datum.services;
 
+import br.com.datum.client.score.ScoreClient;
 import br.com.datum.data.dto.ClienteDTO;
+import br.com.datum.data.dto.CustomerScoreDTO;
 import br.com.datum.exception.ResourceNotFoundException;
 import br.com.datum.mapper.ClienteMapper;
+import br.com.datum.messaging.CustomerEventPublisher;
 import br.com.datum.model.Cliente;
 import br.com.datum.repository.ClienteRepository;
 import br.com.datum.serializer.StatusConverter;
@@ -25,9 +28,16 @@ public class ClienteServices {
 
     ClienteMapper clienteMapper;
 
-    public ClienteServices(ClienteRepository clienteRepository, ClienteMapper clienteMapper) {
+    CustomerEventPublisher customerEventPublisher;
+
+    ScoreClient scoreClient;
+
+    public ClienteServices(ClienteRepository clienteRepository, ClienteMapper clienteMapper,
+                            CustomerEventPublisher customerEventPublisher, ScoreClient scoreClient) {
         this.clienteRepository = clienteRepository;
         this.clienteMapper = clienteMapper;
+        this.customerEventPublisher = customerEventPublisher;
+        this.scoreClient = scoreClient;
     }
 
     public List<ClienteDTO> findAll(){
@@ -72,6 +82,8 @@ public class ClienteServices {
         var cliente = clienteMapper.toEntity(clienteDTO);
         cliente = clienteRepository.save(cliente);
 
+        customerEventPublisher.publishCustomerCreated(cliente.getId());
+
         return clienteMapper.toDTO(cliente);
     }
 
@@ -89,6 +101,40 @@ public class ClienteServices {
         cliente = clienteRepository.save(cliente);
 
         return clienteMapper.toDTO(cliente);
+    }
+
+    /**
+     * Altera apenas o status do cliente, preservando os demais campos.
+     * Usado pelo consumidor de mensagens CUSTOMER_STATUS_CHANGE
+     * (CustomerStatusChangeListener) - diferente de update(), que exige o
+     * payload completo do cliente.
+     */
+    public ClienteDTO updateStatus(Long id, boolean status){
+        logger.info("Updating status do Cliente id={} para status={}", id, status);
+
+        var cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente not found!"));
+
+        cliente.setStatus(status);
+        cliente = clienteRepository.save(cliente);
+
+        return clienteMapper.toDTO(cliente);
+    }
+
+    /**
+     * Consulta o score do cliente junto ao serviço externo
+     * datum-srv-score-cliente (GET /scores/{cpf}), a partir do CPF já
+     * cadastrado localmente.
+     */
+    public CustomerScoreDTO getScore(Long id){
+        logger.info("Consultando score do Cliente id={}", id);
+
+        var cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente not found!"));
+
+        var scoreResponse = scoreClient.consultarScore(cliente.getCpf());
+
+        return new CustomerScoreDTO(cliente.getId(), scoreResponse.cpf(), scoreResponse.score(), scoreResponse.classification());
     }
 
     public void delete(Long id){

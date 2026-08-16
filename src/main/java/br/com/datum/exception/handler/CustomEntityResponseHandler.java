@@ -1,6 +1,7 @@
 package br.com.datum.exception.handler;
 
 import br.com.datum.exception.ExceptionResponse;
+import br.com.datum.exception.ExternalServiceException;
 import br.com.datum.exception.ResourceNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,15 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
                 ex.getMessage(),
                 request.getDescription(false));
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ExternalServiceException.class)
+    public final ResponseEntity<ExceptionResponse> handleExternalServiceException(ExternalServiceException ex, WebRequest request) {
+        ExceptionResponse response = new ExceptionResponse(
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.BAD_GATEWAY);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

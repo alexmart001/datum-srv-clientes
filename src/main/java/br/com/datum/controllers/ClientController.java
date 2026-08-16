@@ -1,6 +1,7 @@
 package br.com.datum.controllers;
 
 import br.com.datum.data.dto.ClienteDTO;
+import br.com.datum.data.dto.CustomerScoreDTO;
 import br.com.datum.services.ClienteServices;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
@@ -34,6 +35,11 @@ public class ClientController {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ClienteDTO findById(@PathVariable("id") Long id){
         return clienteServices.findById(id);
+    }
+
+    @GetMapping(value = "/{id}/score", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CustomerScoreDTO getScore(@PathVariable("id") Long id){
+        return clienteServices.getScore(id);
     }
 
     @PostMapping(
