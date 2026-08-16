@@ -21,15 +21,16 @@ public class ClientController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ClienteDTO> findAll(){
+    public List<ClienteDTO> findAll(@RequestParam(value = "status", required = false) String status){
+        if (status != null) {
+            return clienteServices.search(null, status);
+        }
         return clienteServices.findAll();
     }
 
     @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ClienteDTO> search(
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "status", required = false) String status){
-        return clienteServices.search(name, status);
+    public List<ClienteDTO> search(@RequestParam(value = "name", required = false) String name){
+        return clienteServices.search(name, null);
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

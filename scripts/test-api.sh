@@ -9,6 +9,7 @@
 #   - datum-srv-auth no ar (porta 9000)
 #   - datum-srv-clientes no ar (porta 8080)
 #   - datum-srv-score-cliente no ar (porta 8090)
+#   - datum-srv-status-publisher no ar (porta 8095)
 #   - jq instalado (brew install jq)
 #
 # Uso: ./scripts/test-api.sh
@@ -17,13 +18,13 @@ set -e
 
 AUTH_URL="http://localhost:9000"
 API_URL="http://localhost:8080"
+STATUS_PUBLISHER_URL="http://localhost:8095"
 CLIENT_ID="postman-client"
 CLIENT_SECRET="postman-secret"
 RABBITMQ_MGMT_URL="http://localhost:15672"
 RABBITMQ_USER="guest"
 RABBITMQ_PASSWORD="guest"
 RABBITMQ_QUEUE="process-datum001"
-RABBITMQ_STATUS_CHANGE_QUEUE="customer_status_changed"
 
 echo "== 1) Obtendo Access Token do usuário ADMIN =="
 ADMIN_TOKEN=$(curl -s -u "$CLIENT_ID:$CLIENT_SECRET" \
@@ -64,26 +65,26 @@ NEW_ID=$(echo "$CREATE_RESPONSE" | jq -r .id)
 echo
 
 echo "== 6.1) Evento CUSTOMER_CREATED publicado na fila $RABBITMQ_QUEUE (RabbitMQ) =="
+# ack_requeue_false: consome de verdade (não deixa lixo acumulado na fila a
+# cada execução do script). Se process-datum001 tiver um consumidor real em
+# produção, prefira ack_requeue_true ou pule esta checagem.
 curl -s -u "$RABBITMQ_USER:$RABBITMQ_PASSWORD" -X POST \
   "$RABBITMQ_MGMT_URL/api/queues/%2F/$RABBITMQ_QUEUE/get" \
   -H "Content-Type: application/json" \
-  -d '{"count":5,"ackmode":"ack_requeue_true","encoding":"auto"}' \
+  -d '{"count":20,"ackmode":"ack_requeue_false","encoding":"auto"}' \
   | jq -r '.[] | select(.payload | contains("\"customerId\":'"$NEW_ID"'")) | .payload'
 echo
 
-echo "== 7) GET /customers/search?status=ACTIVE com token USER -> esperado 200 =="
+echo "== 7) GET /customers?status=ACTIVE com token USER -> esperado 200 =="
 curl -s -w "\nHTTP %{http_code}\n" -H "Authorization: Bearer $USER_TOKEN" \
-  "$API_URL/customers/search?status=ACTIVE"
+  "$API_URL/customers?status=ACTIVE"
 echo
 
-echo "== 7.1) Publicando CUSTOMER_STATUS_CHANGE (INACTIVE) para o cliente $NEW_ID na fila $RABBITMQ_STATUS_CHANGE_QUEUE =="
-STATUS_CHANGE_PAYLOAD=$(jq -nc --arg eventId "$(python3 -c 'import uuid; print(uuid.uuid4())')" --argjson customerId "$NEW_ID" \
-  '{eventId:$eventId, eventType:"CUSTOMER_STATUS_CHANGE", customerId:$customerId, status:"INACTIVE"}')
-curl -s -u "$RABBITMQ_USER:$RABBITMQ_PASSWORD" -X POST \
-  "$RABBITMQ_MGMT_URL/api/exchanges/%2F/amq.default/publish" \
-  -H "Content-Type: application/json" \
-  -d "$(jq -nc --arg rk "$RABBITMQ_STATUS_CHANGE_QUEUE" --arg payload "$STATUS_CHANGE_PAYLOAD" \
-        '{properties:{}, routing_key:$rk, payload:$payload, payload_encoding:"string"}')"
+echo "== 7.1) POST no datum-srv-status-publisher para o cliente $NEW_ID virar INACTIVE -> esperado 202 =="
+curl -s -w "\nHTTP %{http_code}\n" -X POST \
+  -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \
+  -d '{"status":"INACTIVE"}' \
+  "$STATUS_PUBLISHER_URL/customers/$NEW_ID/status"
 echo
 sleep 1
 

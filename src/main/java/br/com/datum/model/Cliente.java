@@ -99,11 +99,6 @@ public class Cliente implements Serializable {
         this.dtUltAtualizacao = dtUltAtualizacao;
     }
 
-    @PrePersist
-    protected void aoCriarCliente() {
-        this.status = true;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Cliente cliente)) return false;
