@@ -5,9 +5,9 @@ spring:
     name: datum-srv-clientes
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/datum_db?useTimezone=true&serverTimezone=UTC
-    username: user_datum
-    password: C0ntrol3Xyz21
+    url: jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/datum_db?useTimezone=true&serverTimezone=UTC
+    username: ${DB_USERNAME:user_datum}
+    password: ${DB_PASSWORD:C0ntrol3Xyz21}
   devtools:
     add-properties: false
   jpa:
@@ -27,13 +27,13 @@ spring:
           # resolve automaticamente o JWK Set a partir de
           # {issuer-uri}/.well-known/oauth-authorization-server para
           # validar a assinatura dos tokens.
-          issuer-uri: http://localhost:9000
+          issuer-uri: http://${AUTH_HOST:localhost}:${AUTH_PORT:9000}
   rabbitmq:
-    host: localhost
-    port: 5672
-    virtual-host: /
-    username: guest
-    password: guest
+    host: ${RMQ_HOST:localhost}
+    port: ${RMQ_PORT:5672}
+    virtual-host: ${RMQ_VIRTUAL_HOST:/}
+    username: ${RMQ_USERNAME:guest}
+    password: ${RMQ_PASSWORD:guest}
 
 # Topologia de mensageria já existente no RabbitMQ (exchange, fila e
 # binding foram criados manualmente no servidor, a aplicação não os
@@ -54,4 +54,4 @@ datum:
   # Serviço externo de score (datum-srv-score-cliente), usado pelo
   # endpoint GET /customers/{id}/score. Sem autenticação própria.
   score-service:
-    base-url: http://localhost:8090
+    base-url: http://${SCORE_SERVICE_HOST:localhost}:${SCORE_SERVICE_PORT:8090}
