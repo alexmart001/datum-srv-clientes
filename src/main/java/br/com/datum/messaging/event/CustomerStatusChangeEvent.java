@@ -3,19 +3,6 @@ package br.com.datum.messaging.event;
 import java.io.Serial;
 import java.io.Serializable;
 
-/**
- * Payload recebido na fila de mensagens de alteração de status,
- * publicado por um sistema externo. Formato:
- * {
- *   "eventId": "cbca5352-22ad-48f2-aaf2-704735bc7737",
- *   "eventType": "CUSTOMER_STATUS_CHANGE",
- *   "customerId": 123,
- *   "status": "INACTIVE"
- * }
- *
- * Bean mutável (getters/setters), para o Jackson conseguir desserializar
- * o JSON recebido sem depender de um construtor específico.
- */
 public class CustomerStatusChangeEvent implements Serializable {
 
     @Serial

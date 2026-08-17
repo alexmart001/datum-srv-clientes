@@ -6,16 +6,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-/**
- * Payload do evento publicado no RabbitMQ quando um cliente é criado com
- * sucesso. Formato:
- * {
- *   "eventId": "7ba85b17-7d33-4d17-9101-569a362239f2",
- *   "eventType": "CUSTOMER_CREATED",
- *   "customerId": 123,
- *   "createdAt": "2026-08-11T15:30:00Z"
- * }
- */
 public class CustomerCreatedEvent implements Serializable {
 
     @Serial

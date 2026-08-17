@@ -11,14 +11,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
-/**
- * Este serviço atua como OAuth2 Resource Server: qualquer chamada precisa
- * apresentar um Access Token JWT válido, emitido pelo datum-srv-auth.
- *
- * Regra de autorização, baseada na claim "roles" do token:
- *  - USER  -> apenas consultas (GET).
- *  - ADMIN -> consulta, criação, alteração e exclusão.
- */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -41,9 +33,6 @@ public class SecurityConfig {
     }
 
     private JwtAuthenticationConverter jwtAuthenticationConverter() {
-        // A claim "roles" do token traz o papel "cru" (ex.: "ADMIN"), sem
-        // prefixo. hasRole("ADMIN") do Spring Security espera a autoridade
-        // "ROLE_ADMIN" - por isso o prefixo é adicionado aqui.
         JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
         authoritiesConverter.setAuthoritiesClaimName("roles");
         authoritiesConverter.setAuthorityPrefix("ROLE_");

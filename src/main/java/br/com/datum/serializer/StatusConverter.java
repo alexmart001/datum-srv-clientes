@@ -1,9 +1,5 @@
 package br.com.datum.serializer;
 
-/**
- * Conversão entre a representação textual do status ("ACTIVE"/"INACTIVE")
- * usada na API e o campo boolean persistido na entidade Cliente.
- */
 public final class StatusConverter {
 
     private StatusConverter() {}

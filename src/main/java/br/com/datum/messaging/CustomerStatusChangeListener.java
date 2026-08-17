@@ -14,20 +14,6 @@ import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 
-/**
- * Consome mensagens da fila customer_status_changed (ver
- * datum.rabbitmq.customer-status-change-queue), publicadas por um sistema
- * externo, solicitando a alteração de status de um cliente.
- *
- * O corpo é lido como JSON puro (sem depender do header __TypeId__ que o
- * Spring usa nas próprias mensagens) e desserializado manualmente, já que
- * quem publica aqui não é este serviço.
- *
- * Qualquer falha (JSON inválido, eventType inesperado, cliente
- * inexistente, status inválido) é logada e a mensagem é descartada -
- * nunca relançamos a exceção, para não entrar num loop infinito de
- * redelivery (não há dead-letter exchange configurado nesta fila).
- */
 @Component
 public class CustomerStatusChangeListener {
 

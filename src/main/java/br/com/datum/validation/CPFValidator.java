@@ -3,10 +3,6 @@ package br.com.datum.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-/**
- * Valida um CPF através do algoritmo Módulo 11, usado para o cálculo
- * dos dois dígitos verificadores do documento.
- */
 public class CPFValidator implements ConstraintValidator<CPF, String> {
 
     @Override
