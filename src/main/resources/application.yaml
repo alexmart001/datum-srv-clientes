@@ -23,10 +23,6 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # Aponta para o Authorization Server (datum-srv-auth). O Spring
-          # resolve automaticamente o JWK Set a partir de
-          # {issuer-uri}/.well-known/oauth-authorization-server para
-          # validar a assinatura dos tokens.
           issuer-uri: http://${AUTH_HOST:localhost}:${AUTH_PORT:9000}
   rabbitmq:
     host: ${RMQ_HOST:localhost}
@@ -35,23 +31,10 @@ spring:
     username: ${RMQ_USERNAME:guest}
     password: ${RMQ_PASSWORD:guest}
 
-# Topologia de mensageria já existente no RabbitMQ (exchange, fila e
-# binding foram criados manualmente no servidor, a aplicação não os
-# declara/recria). O binding real entre o exchange e a fila
-# process-datum001 usa a routing key "usuarios.criados.*".
 datum:
   rabbitmq:
     customer-events-exchange: datum001.topic
     customer-created-routing-key: usuarios.criados.cliente
-    # Fila de entrada para mensagens CUSTOMER_STATUS_CHANGE, publicadas por
-    # um sistema externo. Ainda não existia no servidor, então a própria
-    # aplicação declara essa fila na subida (idempotente - se ela já
-    # existir com as mesmas propriedades, não faz nada). Não está
-    # vinculada a nenhum exchange: mensagens chegam a ela publicadas
-    # diretamente via exchange padrão ("") com routing key igual ao nome
-    # da fila.
     customer-status-change-queue: customer_status_changed
-  # Serviço externo de score (datum-srv-score-cliente), usado pelo
-  # endpoint GET /customers/{id}/score. Sem autenticação própria.
   score-service:
     base-url: http://${SCORE_SERVICE_HOST:localhost}:${SCORE_SERVICE_PORT:8090}

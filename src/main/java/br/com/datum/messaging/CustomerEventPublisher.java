@@ -25,12 +25,6 @@ public class CustomerEventPublisher {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    /**
-     * Publica o evento CUSTOMER_CREATED de forma "best effort": se o
-     * RabbitMQ estiver indisponível ou a publicação falhar por qualquer
-     * motivo, o erro é apenas logado - a criação do cliente (já persistida
-     * no banco antes desta chamada) não é desfeita.
-     */
     public void publishCustomerCreated(Long customerId) {
         CustomerCreatedEvent event = new CustomerCreatedEvent(customerId);
         try {
